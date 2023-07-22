@@ -1,0 +1,11 @@
+# terraform
+.terraform/*
+terraform.tfstate
+terraform.tfstate.backup
+
+# Node modules
+lambda/node_modules/*
+
+# archives and zips
+zigsaw.tar
+*.zip

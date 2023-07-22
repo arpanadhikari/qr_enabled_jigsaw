@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+  <script>
+    let stallElement = document.getElementById('stall');
+    // TODO: dynamically update the api_url, currently it needs to be updated manually by running terraform apply
+    // FYI, rwgfye9693m is a dummy api gateway.
+    const api_url = 'https://rwgfye9693m.execute-api.ap-southeast-2.amazonaws.com/prod/solve';
+    const jigsaw_stalls = {
+        'Kj3': '1',
+        'hjNqv': '2',
+        'zX98n': '3',
+        'm78': '4',
+        'kXmzM': '5',
+        'q9X4': '6',
+        '2k4': '7',
+        'M3Hv': '8',
+        'd7G': '9',
+        '4h4': '10',
+        'tX4': '11',
+        'J78': '12'
+    }
+  
+    async function puzzleAPI() {
+        let elements = document.querySelectorAll('z b');
+        // make api call every 4 seconds with each jigsaw_stall as a parameter
+        for (let stall in jigsaw_stalls){
+          try {
+            let response = await fetch(api_url + '?stall=' + stall);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            } else {
+              let data = await response.json();
+              // if the count  is more than 1, change the stall parameter
+              if(data.count >=1)
+              { 
+                //  update the nth element
+                let element = elements[jigsaw_stalls[stall]-1];
+                console.log("element "+element);
+                console.log(data)
+                element.style.zIndex = '1000';
+                element.style.transition = 'transform 0.5s';
+                element.style.transition = 'filter 0.5s';
+                var max_count = 30;
+                data.count = Math.min(data.count, max_count)
+                element.style.filter = 'blur('+(3-(data.count/max_count)*3)+'em)';
+                console.log('blur('+(3-(data.count/max_count)*3)+'em)');
+              }
+            }
+          } catch (error) {
+            console.log('Fetch Error: ', error);
+          }
+        }
+      }
+
+      // run puzzleAPI every 4 seconds
+      setInterval(puzzleAPI, 5000);
+  
+  </script>
+
+  <style>
+    /* set a global variable for blur pixels */
+    :root {
+      --blur: 2em;
+    }
+
+  g {
+      --s: 25vw;
+      /* size of the puzzle */
+      --r: 4vw;
+      display: grid;
+      width: fit-content;
+      border: 1px solid;
+      margin: auto;
+      grid: auto-flow var(--s)/repeat(3, var(--s));
+    }
+  
+  z {
+    display: grid;
+    position: relative;
+    pointer-events: none;
+    outline: 1px dashed;
+  }
+  
+  a {
+    grid-area: 1/1;
+    width: 0;
+    transition: 0s 0.2s;
+    pointer-events: initial;
+  }
+
+  z b {
+    /* blue the backgroun only */
+    filter: blur(var(--blur));
+  }
+  
+  b {
+    grid-area: 1/1;
+    z-index: 2;
+    display: grid;
+    /* border: #000; */
+    filter: drop-shadow(0 0 2px rgb(255, 255, 255)) drop-shadow(0 0 2px rgb(255, 255, 255));
+    cursor: grab;
+    pointer-events: initial;
+    height: calc(100% + var(--r));
+    width: calc(100% + var(--r));
+    place-self: start end;
+    --m:
+      radial-gradient(var(--r) at calc(50% - var(--r)/2) 0,#0000 98%,#000) var(--r) 0/100% var(--r) no-repeat,
+      radial-gradient(var(--r) at calc(100% - var(--r)) calc(50% - var(--r)/2),#0000 98%,#000) var(--r) 50%/100% calc(100% - 2*var(--r)) no-repeat,
+      radial-gradient(var(--r) at var(--r) calc(50% - var(--r)/2),#000 98%,#0000),
+      radial-gradient(var(--r) at calc(50% + var(--r)/2) calc(100% - var(--r)),#000 98%,#0000);
+  }
+  
+  b:before {
+    content: "";
+    /* background: var(--i) 0/calc(3*var(--s)) calc(3*var(--s)); */
+    background: var(--i) 0/75vw 100vw;
+    -webkit-mask: var(--m);
+    mask: var(--m);
+  }
+
+
+  z:first-child b {
+    /* filter: blur(var(--blur)); */
+    height: calc(100% + var(--r));
+    width: 100%;
+    --m:
+      radial-gradient(var(--r) at 100% calc(50% + var(--r)/2),#0000 98%,#000)
+       0 calc(-1*var(--r)) no-repeat,
+      radial-gradient(var(--r) at 50% calc(100% - var(--r)),#000 98%,#0000) ;
+  }
+  z:nth-child(2):not(:first-child) b {
+    place-self: start end;
+    height: calc(100% + var(--r));
+    width: calc(100% + var(--r));
+    --m:
+    radial-gradient(var(--r) at calc(100% - var(--r)) calc(50% + var(--r)/2),#0000 98%,#000)
+    var(--r) calc(-1*var(--r)) no-repeat,
+    radial-gradient(var(--r) at var(--r) calc(50% - var(--r)/2),#000 98%,#0000),
+    radial-gradient(var(--r) at calc(50% + var(--r)/2) calc(100% - var(--r)),#000 98%,#0000) ;
+  }
+  z:nth-child(3) b {
+    place-self: start end;
+    height: calc(100% + var(--r));
+    width: calc(100% + var(--r));
+    --m:
+      linear-gradient(#000 0 0) var(--r) calc(-1*var(--r)) no-repeat,
+      radial-gradient(var(--r) at var(--r) calc(50% - var(--r)/2),#000 98%,#0000),
+      radial-gradient(var(--r) at calc(50% + var(--r)/2) calc(100% - var(--r)),#000 98%,#0000) ;
+  }
+  z:nth-child(3n+1):not(:first-child):not(:nth-last-child(3)) b {
+    height: calc(100% + var(--r));
+    width: 100%;
+    --m:
+      radial-gradient(var(--r) at 100% calc(50% - var(--r)/2),#0000 98%,#000) 50%/ 100% calc(100% - 2*var(--r)) no-repeat,
+      radial-gradient(var(--r) at 50% 0,#0000 98%,#000) 0 0/ 100% var(--r) no-repeat,
+      radial-gradient(var(--r) at 50% calc(100% - var(--r)),#000 98%,#0000) ;
+  }
+  z:nth-last-child(3) b {
+    height: 100%;
+    width: 100%;
+    --m:
+      radial-gradient(var(--r) at 100% calc(50% - var(--r)),#0000 98%,#000) 0 var(--r) no-repeat,
+      radial-gradient(var(--r) at 50% 0,#0000 98%,#000) 0 0/ 100% var(--r) no-repeat;
+  }
+  z:nth-child(3n):not(:nth-child(3)):not(:last-child) b {
+    place-self: start end;
+    height: calc(100% + var(--r));
+    width: calc(100% + var(--r));
+    --m:
+      radial-gradient(var(--r) at calc(50% - var(--r)/2) var(--r),#0000 98%,#000) var(--r) calc(-1*var(--r)) no-repeat,
+      radial-gradient(var(--r) at var(--r) calc(50% - var(--r)/2),#000 98%,#0000),
+      radial-gradient(var(--r) at calc(50% + var(--r)/2) calc(100% - var(--r)),#000 98%,#0000) ;
+  }
+  z:last-child b {
+    place-self: end;
+    height: 100%;
+    width: calc(100% + var(--r));
+    --m:
+      radial-gradient(var(--r) at calc(50% - var(--r)/2) 0,#0000 98%,#000) var(--r) 0 no-repeat,
+      radial-gradient(var(--r) at var(--r) 50%,#000 98%,#0000) ;
+  }
+  z:nth-last-child(2) b {
+    place-self: end;
+    height: 100%;
+    width: calc(100% + var(--r));
+    --m:
+      radial-gradient(var(--r) at calc(50% - var(--r)/2) 0,#0000 98%,#000) var(--r) 0/100% var(--r) no-repeat,
+      radial-gradient(var(--r) at calc(100% - var(--r)) calc(50% - var(--r)/2),#0000 98%,#000) var(--r) 100%/100% calc(100% - var(--r)) no-repeat,
+      radial-gradient(var(--r) at var(--r) 50%,#000 98%,#0000) ;
+  }
+
+  
+  z:nth-of-type(1) b:before {
+    background-position: 0% 0%;
+  }
+  z:nth-of-type(2) b:before {
+    background-position: calc(45% ) 0%;
+  }
+  z:nth-of-type(3) b:before {
+    background-position: calc(100% ) 0%;
+  }
+  z:nth-of-type(4) b:before {
+    background-position: 0% calc(35%);
+  }
+  z:nth-of-type(5) b:before {
+    background-position: calc(45%) 35%;
+  }
+  z:nth-of-type(6) b:before {
+    background-position: 100% 35%;
+  }
+  z:nth-of-type(7) b:before {
+    background-position: 0% 70%;
+  }
+  z:nth-of-type(8) b:before {
+    background-position: 45% 70%;
+  }
+  z:nth-of-type(9) b:before {
+    background-position: 100% 70%;
+  }
+  z:nth-of-type(10) b:before {
+    background-position: 0% 100%;
+  }
+  z:nth-of-type(11) b:before {
+    background-position: 45% 100%;
+  }
+  z:nth-of-type(12) b:before {
+    background-position: 100% 100%;
+  }
+  
+  body {
+    background: #547980;
+    color: #fff;
+    font-family: system-ui, sans-serif;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    margin: 0;
+    text-align: center;
+  }
+  
+  p {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  [data-ea-publisher] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 999;
+  }
+  [data-ea-publisher].loaded .ea-content, 
+  [data-ea-type].loaded .ea-content {
+    background: rgb(255 255 255 / 80%)!important;
+  }
+  @media (max-width: 1024px) {
+    [data-ea-publisher] {
+      display: none!important;
+    }
+  }
+  </style>
+  <!-- update the image url before deploying -->
+    <g style="--i:url(https://example.com/image.jpg)">
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+        <z><a></a><b draggable="true"></b></z>
+      </g>
+</body>
+</html>
